@@ -170,7 +170,12 @@ summary { cursor: pointer; color: var(--muted); font-size: 13px; }
 .formula-row span { color: var(--muted); font-size: 13px; }
 .formula-row code { color: var(--text); font-family: inherit; font-size: 13px; }
 
-footer { display: flex; justify-content: space-between; gap: 28px; padding: 28px 4px 44px; color: #747c74; font-size: 12px; }
+footer { display: flex; align-items: center; justify-content: space-between; gap: 28px; padding: 28px 4px 44px; color: #747c74; font-size: 12px; }
+footer p { margin: 0; }
+.github-link { display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; padding: 9px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--text); font-weight: 700; text-decoration: none; transition: border-color .2s, background .2s, transform .2s; }
+.github-link svg { width: 17px; height: 17px; fill: currentColor; }
+.github-link:hover { border-color: var(--lime); background: rgba(194, 240, 96, .08); transform: translateY(-1px); }
+.github-link:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 24px); padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: #242a24; opacity: 0; pointer-events: none; transition: .25s; box-shadow: 0 12px 40px rgba(0,0,0,.35); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
@@ -200,7 +205,7 @@ footer { display: flex; justify-content: space-between; gap: 28px; padding: 28px
   .formula-row { grid-template-columns: 1fr; }
   .switch-list { grid-template-columns: 1fr; }
   .planner-note { width: 100%; margin-left: 0; }
-  footer { flex-direction: column; gap: 4px; }
+  footer { align-items: flex-start; flex-direction: column; gap: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
