@@ -160,11 +160,41 @@
               <div class="advanced-grid">
                 <label><span>Cv-rendement</span><div class="input-wrap"><input id="boilerEfficiency" type="number" min="70" max="100" step="1" /><em>%</em></div></label>
                 <label><span>Warmteverlies</span><div class="input-wrap"><input id="heatLoss" type="number" min="20" max="120" step="1" /><em>W/m²</em></div></label>
-                <label><span>Gasopslag</span><div class="input-wrap"><span>€</span><input id="gasSurcharge" type="number" min="0" max="2" step="0.001" /><em>/m³</em></div></label>
-                <label><span>Stroomopslag</span><div class="input-wrap"><span>€</span><input id="electricitySurcharge" type="number" min="0" max="1" step="0.001" /><em>/kWh</em></div></label>
+                <label><span>Gascorrectie</span><div class="input-wrap"><span>€</span><input id="gasSurcharge" type="number" min="-1" max="2" step="0.001" /><em>/m³</em></div></label>
+                <label><span>Stroomcorrectie</span><div class="input-wrap"><span>€</span><input id="electricitySurcharge" type="number" min="-1" max="1" step="0.001" /><em>/kWh</em></div></label>
               </div>
             </details>
           </article>
+        </section>
+
+        <section class="panel planner-panel">
+          <div class="panel-heading planner-heading">
+            <div>
+              <span class="eyebrow">Verwarmingsplanning</span>
+              <h2>De slimste strategie per uur</h2>
+            </div>
+            <span class="planning-range" id="planningRange">Komende 48 uur</span>
+          </div>
+          <div class="next-switch" id="nextSwitchCard">
+            <div class="switch-symbol" id="nextSwitchIcon">→</div>
+            <div>
+              <span>Volgend schakelmoment</span>
+              <strong id="nextSwitchText">Planning wordt opgebouwd…</strong>
+              <small id="nextSwitchReason"></small>
+            </div>
+          </div>
+          <div class="timeline-viewport" aria-label="Verwarmingsadvies voor de komende uren">
+            <div class="timeline-axis" id="timelineAxis"></div>
+            <div class="strategy-timeline" id="strategyTimeline"></div>
+            <div class="temperature-line" id="temperatureLine"></div>
+          </div>
+          <div class="planner-legend">
+            <span><i class="blue"></i> Airco</span>
+            <span><i class="orange"></i> Gas</span>
+            <span><i class="hybrid"></i> Hybride</span>
+            <span class="planner-note" id="plannerNote">Gebaseerd op gepubliceerde prijzen en weersverwachting</span>
+          </div>
+          <div class="switch-list" id="switchList"></div>
         </section>
 
         <section class="explanation-panel">
