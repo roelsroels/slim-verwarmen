@@ -284,7 +284,7 @@ function calculate() {
     ? `${money(savingHourly, 2)} · ${savingPercent}%`
     : `${money(state.heatPumpEnabled ? hpHourly : gasHourly, 2)}/uur`;
   els.savingLabel.textContent = comparisonAvailable
-    ? (hpWins ? `goedkoper per uur met ${state.heatPumpName}` : `goedkoper per uur met ${state.boilerName}`)
+    ? (hpWins ? `voordeliger per uur met ${state.heatPumpName}` : `voordeliger per uur met ${state.boilerName}`)
     : "geschatte verwarmingskosten";
   els.explanationTitle.textContent = !comparisonAvailable
     ? `Kostenprofiel van ${state.heatPumpEnabled ? state.heatPumpName : state.boilerName}.`
