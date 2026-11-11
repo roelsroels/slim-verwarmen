@@ -2,7 +2,7 @@
 
 Een statische, eenvoudige webtool die de verwarmingskosten vergelijkt van:
 
-- Mitsubishi Heavy Industries SCM40ZS-W / SRK35ZS-W warmtepomp;
+- Mitsubishi Heavy Industries SCM40ZS-W / SRK35ZS-W Airco/warmtepomp;
 - Intergas 28/24A cv-ketel;
 - de woonkamer van circa 60 m².
 
