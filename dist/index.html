@@ -211,12 +211,51 @@
       </main>
 
       <footer>
-        <p>Indicatieve kostenhulp — comfort, luchtstroming, defrost en werkelijk verbruik kunnen afwijken.</p>
-        <p>Prijzen: EnergyZero public API · Weer: Open-Meteo</p>
-        <a class="github-link" href="https://github.com/roelsroels/slim-verwarmen" target="_blank" rel="noopener noreferrer" aria-label="Bekijk Slim verwarmen op GitHub">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.57-.29-5.27-1.28-5.27-5.68 0-1.26.45-2.28 1.19-3.08-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.93 10.93 0 0 1 12 6.13c.98 0 1.95.13 2.87.39 2.2-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.82 1.19 3.08 0 4.41-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.25c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/></svg>
-          Bekijk op GitHub
-        </a>
+        <section class="assumptions-footer" aria-labelledby="assumptionsTitle">
+          <div class="assumptions-heading">
+            <div>
+              <span class="eyebrow">Rekenbasis</span>
+              <h2 id="assumptionsTitle">Gebruikte variabelen en aannames</h2>
+            </div>
+            <p>Actuele invoer verandert direct mee met de calculator.</p>
+          </div>
+
+          <div class="assumptions-table-wrap">
+            <table class="assumptions-table">
+              <thead>
+                <tr>
+                  <th scope="col">Variabele</th>
+                  <th scope="col">Huidige waarde</th>
+                  <th scope="col">Herkomst</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="assumption-group"><th colspan="3" scope="rowgroup">Actuele invoer</th></tr>
+                <tr><th scope="row">Elektriciteitsprijs</th><td id="assumptionElectricity">—</td><td><span class="assumption-tag live">Actueel</span></td></tr>
+                <tr><th scope="row">Gasprijs</th><td id="assumptionGas">—</td><td><span class="assumption-tag live">Actueel</span></td></tr>
+                <tr><th scope="row">Buitentemperatuur</th><td id="assumptionOutside">—</td><td><span class="assumption-tag live">Actueel</span></td></tr>
+                <tr><th scope="row">Binnen → doel</th><td id="assumptionInsideTarget">—</td><td><span class="assumption-tag input">Jouw invoer</span></td></tr>
+                <tr><th scope="row">Verwarmingsduur</th><td id="assumptionDuration">—</td><td><span class="assumption-tag input">Jouw invoer</span></td></tr>
+                <tr><th scope="row">Ketelrendement</th><td id="assumptionEfficiency">—</td><td><span class="assumption-tag input">Jouw invoer</span></td></tr>
+                <tr><th scope="row">Warmteverlies</th><td id="assumptionHeatLoss">—</td><td><span class="assumption-tag input">Jouw invoer</span></td></tr>
+                <tr><th scope="row">Geschatte COP</th><td id="assumptionCop">—</td><td><span class="assumption-tag calculated">Berekend</span></td></tr>
+                <tr class="assumption-group"><th colspan="3" scope="rowgroup">Vaste modelaannames</th></tr>
+                <tr><th scope="row">Verwarmd oppervlak</th><td>60 m²</td><td>Woonkamer</td></tr>
+                <tr><th scope="row">Max. warmtepompvermogen</th><td>4,5 kW</td><td>Mitsubishi SCM40ZS-W</td></tr>
+                <tr><th scope="row">Energie-inhoud gas</th><td>9,77 kWh/m³</td><td>Rekenwaarde</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="footer-meta">
+          <p>Indicatieve kostenhulp — comfort, luchtstroming, defrost en werkelijk verbruik kunnen afwijken.</p>
+          <p>Prijzen: EnergyZero public API · Weer: Open-Meteo</p>
+          <a class="github-link" href="https://github.com/roelsroels/slim-verwarmen" target="_blank" rel="noopener noreferrer" aria-label="Bekijk Slim verwarmen op GitHub">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.57-.29-5.27-1.28-5.27-5.68 0-1.26.45-2.28 1.19-3.08-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.93 10.93 0 0 1 12 6.13c.98 0 1.95.13 2.87.39 2.2-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.82 1.19 3.08 0 4.41-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.25c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/></svg>
+            Bekijk op GitHub
+          </a>
+        </div>
       </footer>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>

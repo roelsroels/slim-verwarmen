@@ -22,7 +22,9 @@ const els = Object.fromEntries(
     "fourHourSaving", "capacityStatus", "explanationTitle", "explanationText", "dataStatus",
     "weatherTime", "weatherNote", "refreshButton", "resetButton", "toast"
     , "planningRange", "nextSwitchText", "nextSwitchReason", "nextSwitchIcon",
-    "timelineAxis", "strategyTimeline", "temperatureLine", "plannerNote", "switchList"
+    "timelineAxis", "strategyTimeline", "temperatureLine", "plannerNote", "switchList",
+    "assumptionElectricity", "assumptionGas", "assumptionOutside", "assumptionInsideTarget",
+    "assumptionDuration", "assumptionEfficiency", "assumptionHeatLoss", "assumptionCop"
   ].map((id) => [id, document.getElementById(id)])
 );
 
@@ -131,6 +133,14 @@ function calculate() {
   els.heatDemand.textContent = `${nf.format(heatDemand)} kW`;
   els.fourHourSaving.textContent = `${money(periodSaving, 2)} voordeel`;
   els.capacityStatus.textContent = capacityLimited ? "Combineren" : "Voldoende";
+  els.assumptionElectricity.textContent = `${money(state.electricity)}/kWh`;
+  els.assumptionGas.textContent = `${money(state.gas)}/m³`;
+  els.assumptionOutside.textContent = `${state.outside.toLocaleString("nl-NL", { maximumFractionDigits: 1 })} °C`;
+  els.assumptionInsideTarget.textContent = `${state.inside.toLocaleString("nl-NL", { maximumFractionDigits: 1 })} → ${state.target.toLocaleString("nl-NL", { maximumFractionDigits: 1 })} °C`;
+  els.assumptionDuration.textContent = `${state.duration.toLocaleString("nl-NL", { maximumFractionDigits: 1 })} uur`;
+  els.assumptionEfficiency.textContent = `${state.boilerEfficiency.toLocaleString("nl-NL", { maximumFractionDigits: 0 })}%`;
+  els.assumptionHeatLoss.textContent = `${state.heatLoss.toLocaleString("nl-NL", { maximumFractionDigits: 0 })} W/m²K`;
+  els.assumptionCop.textContent = nf.format(cop);
 
   const maxHourly = Math.max(hpHourly, gasHourly) * 1.08;
   els.heatPumpBar.style.width = `${(hpHourly / maxHourly) * 100}%`;

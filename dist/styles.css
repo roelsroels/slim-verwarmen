@@ -170,8 +170,25 @@ summary { cursor: pointer; color: var(--muted); font-size: 13px; }
 .formula-row span { color: var(--muted); font-size: 13px; }
 .formula-row code { color: var(--text); font-family: inherit; font-size: 13px; }
 
-footer { display: flex; align-items: center; justify-content: space-between; gap: 28px; padding: 28px 4px 44px; color: #747c74; font-size: 12px; }
+footer { display: grid; gap: 16px; padding: 28px 0 44px; color: #747c74; font-size: 12px; }
 footer p { margin: 0; }
+.assumptions-footer { overflow: hidden; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); }
+.assumptions-heading { display: flex; align-items: end; justify-content: space-between; gap: 28px; padding: 24px 26px 20px; }
+.assumptions-heading h2 { margin: 5px 0 0; color: var(--text); font-size: clamp(20px, 2vw, 27px); letter-spacing: -.02em; }
+.assumptions-heading > p { max-width: 300px; color: var(--muted); line-height: 1.5; text-align: right; }
+.assumptions-table-wrap { overflow-x: auto; border-top: 1px solid var(--line); }
+.assumptions-table { width: 100%; min-width: 620px; border-collapse: collapse; color: var(--text); font-size: 13px; }
+.assumptions-table th, .assumptions-table td { padding: 12px 26px; border-bottom: 1px solid rgba(255, 255, 255, .055); text-align: left; }
+.assumptions-table thead th { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.assumptions-table tbody th { width: 38%; font-weight: 650; }
+.assumptions-table tbody td:nth-child(2) { width: 28%; font-variant-numeric: tabular-nums; font-weight: 750; }
+.assumptions-table tbody tr:last-child > * { border-bottom: 0; }
+.assumptions-table .assumption-group th { padding-top: 15px; padding-bottom: 8px; color: var(--muted); background: rgba(255, 255, 255, .018); font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.assumption-tag { display: inline-flex; align-items: center; min-height: 24px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 10px; font-weight: 800; white-space: nowrap; }
+.assumption-tag.live { color: var(--lime); border-color: rgba(194, 240, 96, .25); background: rgba(194, 240, 96, .07); }
+.assumption-tag.input { color: #9ed6ff; border-color: rgba(76, 167, 255, .25); background: rgba(76, 167, 255, .07); }
+.assumption-tag.calculated { color: #ffc982; border-color: rgba(255, 170, 63, .25); background: rgba(255, 170, 63, .07); }
+.footer-meta { display: flex; align-items: center; justify-content: space-between; gap: 28px; padding: 0 4px; }
 .github-link { display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; padding: 9px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--text); font-weight: 700; text-decoration: none; transition: border-color .2s, background .2s, transform .2s; }
 .github-link svg { width: 17px; height: 17px; fill: currentColor; }
 .github-link:hover { border-color: var(--lime); background: rgba(194, 240, 96, .08); transform: translateY(-1px); }
@@ -205,7 +222,10 @@ footer p { margin: 0; }
   .formula-row { grid-template-columns: 1fr; }
   .switch-list { grid-template-columns: 1fr; }
   .planner-note { width: 100%; margin-left: 0; }
-  footer { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .assumptions-heading { align-items: flex-start; flex-direction: column; gap: 8px; padding: 22px 20px 18px; }
+  .assumptions-heading > p { max-width: none; text-align: left; }
+  .assumptions-table th, .assumptions-table td { padding-left: 20px; padding-right: 20px; }
+  .footer-meta { align-items: flex-start; flex-direction: column; gap: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
