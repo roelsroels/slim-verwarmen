@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101310" />
+    <meta
+      name="description"
+      content="Vergelijk de actuele verwarmingskosten van de Mitsubishi warmtepomp en Intergas cv-ketel."
+    />
+    <title>Slim verwarmen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="Slim verwarmen, naar boven">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" fill="none">
+              <path d="M20 5c1 6-5 9-5 15a5 5 0 0 0 10 0c0-3-2-5-2-8 5 4 8 8 8 14a11 11 0 0 1-22 0c0-8 7-12 11-21Z" />
+            </svg>
+          </span>
+          <span>Slim verwarmen</span>
+        </a>
+        <div class="top-actions">
+          <span class="status-pill" id="dataStatus"><i></i> Handmatige waarden</span>
+          <button class="icon-button" id="refreshButton" type="button" title="Gegevens vernieuwen" aria-label="Gegevens vernieuwen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6v5h-5M4 18v-5h5M18.2 9A7 7 0 0 0 6.4 6.4L4 9m16 6-2.4 2.6A7 7 0 0 1 5.8 15" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <main id="top">
+        <section class="hero-grid">
+          <article class="recommendation-card" id="recommendationCard">
+            <div class="eyebrow">Beste keuze op dit moment</div>
+            <div class="recommendation-heading">
+              <div class="recommendation-icon" id="recommendationIcon" aria-hidden="true"></div>
+              <div>
+                <h1 id="recommendationTitle">Airco</h1>
+                <p id="recommendationSubtitle">De warmtepomp levert nu de goedkoopste warmte.</p>
+              </div>
+            </div>
+            <div class="hero-saving">
+              <strong id="savingValue">–</strong>
+              <span id="savingLabel">besparing per uur</span>
+            </div>
+            <div class="reason-strip" id="reasonStrip">
+              <span class="dot"></span>
+              <span id="reasonText">We berekenen de strategie met jouw actuele waarden.</span>
+            </div>
+          </article>
+
+          <aside class="weather-card">
+            <div class="weather-topline">
+              <span class="eyebrow">Buiten in Amsterdam</span>
+              <span id="weatherTime">nu</span>
+            </div>
+            <div class="weather-main">
+              <span class="weather-icon" aria-hidden="true">
+                <svg viewBox="0 0 64 64"><path d="M18 45h30a10 10 0 0 0 1-20 17 17 0 0 0-32-3A12 12 0 0 0 18 45Z" /></svg>
+              </span>
+              <strong><span id="outsideDisplay">8,0</span>°</strong>
+            </div>
+            <p id="weatherNote">De COP wordt automatisch aangepast aan de buitentemperatuur.</p>
+          </aside>
+        </section>
+
+        <section class="metric-grid" aria-label="Kostenvergelijking">
+          <article class="metric-card accent-blue">
+            <div class="metric-title"><span class="mini-icon">✦</span> Warmtepomp</div>
+            <strong id="heatPumpCost">€ –</strong>
+            <span>per kWh warmte</span>
+            <div class="metric-foot"><span>COP</span><b id="copValue">–</b></div>
+          </article>
+          <article class="metric-card accent-orange">
+            <div class="metric-title"><span class="mini-icon">●</span> Cv-ketel</div>
+            <strong id="gasCost">€ –</strong>
+            <span>per kWh warmte</span>
+            <div class="metric-foot"><span>Rendement</span><b id="boilerEfficiencyValue">–</b></div>
+          </article>
+          <article class="metric-card accent-green">
+            <div class="metric-title"><span class="mini-icon">↗</span> Omslagpunt</div>
+            <strong id="breakEvenPrice">€ –</strong>
+            <span>stroomprijs per kWh</span>
+            <div class="metric-foot"><span>Benodigde COP</span><b id="breakEvenCop">–</b></div>
+          </article>
+        </section>
+
+        <section class="dashboard-grid">
+          <article class="panel strategy-panel">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Plan voor de woonkamer</span>
+                <h2>Wat kost comfortabel houden?</h2>
+              </div>
+              <span class="area-badge">60 m²</span>
+            </div>
+            <div class="cost-comparison">
+              <div class="cost-row">
+                <div class="cost-label"><span class="legend-dot blue"></span><b>Airco</b><small>Mitsubishi SCM40ZS-W</small></div>
+                <div class="cost-bar-track"><div class="cost-bar blue" id="heatPumpBar"></div></div>
+                <strong id="heatPumpHourly">€ –/uur</strong>
+              </div>
+              <div class="cost-row">
+                <div class="cost-label"><span class="legend-dot orange"></span><b>Gas</b><small>Intergas 28/24A</small></div>
+                <div class="cost-bar-track"><div class="cost-bar orange" id="gasBar"></div></div>
+                <strong id="gasHourly">€ –/uur</strong>
+              </div>
+            </div>
+            <div class="demand-summary">
+              <div><span>Geschatte warmtevraag</span><strong id="heatDemand">– kW</strong></div>
+              <div><span>Verbruik voor 4 uur</span><strong id="fourHourSaving">€ – voordeel</strong></div>
+              <div><span>Capaciteitscheck</span><strong id="capacityStatus">Voldoende</strong></div>
+            </div>
+          </article>
+
+          <article class="panel controls-panel">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Actuele invoer</span>
+                <h2>Pas de situatie aan</h2>
+              </div>
+              <button class="text-button" id="resetButton" type="button">Herstel</button>
+            </div>
+            <form id="strategyForm">
+              <label>
+                <span>Stroomprijs <small>all-in</small></span>
+                <div class="input-wrap"><span>€</span><input id="electricityPrice" name="electricity" type="number" min="0" max="2" step="0.001" inputmode="decimal" /><em>/kWh</em></div>
+              </label>
+              <label>
+                <span>Gasprijs <small>all-in</small></span>
+                <div class="input-wrap"><span>€</span><input id="gasPrice" name="gas" type="number" min="0" max="5" step="0.001" inputmode="decimal" /><em>/m³</em></div>
+              </label>
+              <label>
+                <span>Buitentemperatuur</span>
+                <div class="input-wrap"><input id="outsideTemp" name="outside" type="number" min="-20" max="35" step="0.1" inputmode="decimal" /><em>°C</em></div>
+              </label>
+              <label>
+                <span>Temperatuur binnen</span>
+                <div class="input-wrap"><input id="insideTemp" name="inside" type="number" min="5" max="30" step="0.1" inputmode="decimal" /><em>°C</em></div>
+              </label>
+              <label>
+                <span>Gewenste temperatuur</span>
+                <div class="input-wrap"><input id="targetTemp" name="target" type="number" min="10" max="30" step="0.5" inputmode="decimal" /><em>°C</em></div>
+              </label>
+              <label>
+                <span>Rekenperiode</span>
+                <div class="input-wrap"><input id="duration" name="duration" type="number" min="1" max="24" step="1" inputmode="numeric" /><em>uur</em></div>
+              </label>
+            </form>
+            <details>
+              <summary>Geavanceerde aannames</summary>
+              <div class="advanced-grid">
+                <label><span>Cv-rendement</span><div class="input-wrap"><input id="boilerEfficiency" type="number" min="70" max="100" step="1" /><em>%</em></div></label>
+                <label><span>Warmteverlies</span><div class="input-wrap"><input id="heatLoss" type="number" min="20" max="120" step="1" /><em>W/m²</em></div></label>
+                <label><span>Gasopslag</span><div class="input-wrap"><span>€</span><input id="gasSurcharge" type="number" min="0" max="2" step="0.001" /><em>/m³</em></div></label>
+                <label><span>Stroomopslag</span><div class="input-wrap"><span>€</span><input id="electricitySurcharge" type="number" min="0" max="1" step="0.001" /><em>/kWh</em></div></label>
+              </div>
+            </details>
+          </article>
+        </section>
+
+        <section class="explanation-panel">
+          <div>
+            <span class="eyebrow">Waarom deze keuze?</span>
+            <h2 id="explanationTitle">De warmtepomp vermenigvuldigt iedere kWh stroom.</h2>
+          </div>
+          <p id="explanationText"></p>
+          <div class="formula-row">
+            <div><span>Warmtepomp</span><code>stroomprijs ÷ COP</code></div>
+            <div><span>Cv-ketel</span><code>gasprijs ÷ (9,77 × rendement)</code></div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>Indicatieve kostenhulp — comfort, luchtstroming, defrost en werkelijk verbruik kunnen afwijken.</p>
+        <p>Prijzen: EnergyZero public API · Weer: Open-Meteo</p>
+      </footer>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js" defer></script>
+  </body>
+</html>
