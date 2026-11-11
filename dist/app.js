@@ -270,12 +270,12 @@ function calculate() {
     els.reasonText.textContent = `De vraag is circa ${nf.format(heatDemand)} kW; ${state.heatPumpName} is ingesteld op maximaal ${nf.format(state.heatPumpCapacity)} kW warmte.`;
   } else if (hpWins) {
     els.recommendationTitle.textContent = state.heatPumpName;
-    els.recommendationSubtitle.textContent = `${state.heatPumpModel} levert nu de goedkoopste warmte.`;
+    els.recommendationSubtitle.textContent = `${state.heatPumpModel} levert nu de voordeligste warmte.`;
     els.recommendationIcon.textContent = "❄";
     els.reasonText.textContent = `De geschatte COP is ${nf.format(cop)}; ${state.heatPumpName} blijft voordelig zolang stroom onder ${money(breakEvenPrice)} per kWh blijft.`;
   } else {
     els.recommendationTitle.textContent = state.boilerName;
-    els.recommendationSubtitle.textContent = `${state.boilerModel} levert in deze situatie de goedkoopste warmte.`;
+    els.recommendationSubtitle.textContent = `${state.boilerModel} levert in deze situatie de voordeligste warmte.`;
     els.recommendationIcon.textContent = "♨";
     els.reasonText.textContent = `Voor de huidige stroomprijs is een COP van ${nf.format(breakEvenCop)} nodig; de schatting is ${nf.format(cop)}.`;
   }
@@ -430,7 +430,7 @@ function renderPlanner() {
     const current = slots.find((slot) => slot.strategy !== "unavailable");
     els.nextSwitchIcon.textContent = "✓";
     els.nextSwitchText.textContent = current ? `Geen wissel verwacht — blijf op ${labelFor(current.strategy)}` : "Nog onvoldoende prijsdata";
-    els.nextSwitchReason.textContent = current ? `Binnen de beschikbare planning blijft dit de goedkoopste strategie.` : "Vernieuw zodra de energieprijzen beschikbaar zijn.";
+    els.nextSwitchReason.textContent = current ? `Binnen de beschikbare planning blijft dit de beste strategie.` : "Vernieuw zodra de energieprijzen beschikbaar zijn.";
   }
 
   els.switchList.innerHTML = switches.length
