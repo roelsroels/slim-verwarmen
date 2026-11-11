@@ -191,6 +191,7 @@ async function fetchEnergyZero(usageType) {
   });
   const sources = [
     `/api/energyzero?${query}`,
+    `./data/energyzero-${usageType === 3 ? "gas" : "electricity"}.json`,
     `https://public.api.energyzero.nl/public/v1/prices?${query}`,
   ];
   let lastError;

@@ -28,6 +28,10 @@ Stoppen:
 docker compose down
 ```
 
+## GitHub Pages
+
+De openbare Pages-versie staat op `https://roelsroels.github.io/slim-verwarmen/`. De workflow in `.github/workflows/github-pages.yml` publiceert `dist/` na iedere wijziging en vernieuwt iedere 15 minuten statische prijs-snapshots van EnergyZero. Daardoor heeft de Pages-versie geen serverproxy of toegangssleutel nodig.
+
 ## Rekenmethode
 
 - Warmtepomp: `elektriciteitsprijs / geschatte COP`

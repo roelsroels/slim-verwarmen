@@ -1,0 +1,53 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Download current EnergyZero prices
+        env:
+          TZ: Europe/Amsterdam
+        run: |
+          mkdir -p dist/data
+          PRICE_DATE="$(date +'%d-%m-%Y')"
+          curl --fail --retry 3 --silent --show-error \
+            --output dist/data/energyzero-electricity.json \
+            "https://public.api.energyzero.nl/public/v1/prices?date=${PRICE_DATE}&interval=INTERVAL_QUARTER&energyType=ENERGY_TYPE_ELECTRICITY"
+          curl --fail --retry 3 --silent --show-error \
+            --output dist/data/energyzero-gas.json \
+            "https://public.api.energyzero.nl/public/v1/prices?date=${PRICE_DATE}&interval=INTERVAL_DAY&energyType=ENERGY_TYPE_GAS"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
