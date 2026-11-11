@@ -22,7 +22,7 @@ Serveer de map `dist/` met een eenvoudige statische webserver. Rechtstreeks open
 docker compose up -d --build
 ```
 
-Open daarna `http://<docker-host>:5080`. De container gebruikt Nginx, draait met een read-only bestandssysteem en heeft een ingebouwde healthcheck. Nginx proxy't alleen de publieke EnergyZero-prijsaanvraag via hetzelfde origin, zodat browsers deze niet door CORS blokkeren.
+Open daarna `http://<docker-host>:5080`. De container gebruikt Nginx, draait met een read-only bestandssysteem en heeft een ingebouwde healthcheck. Nginx proxy't alleen de publieke EnergyZero-prijsaanvraag via hetzelfde origin, zodat browsers deze niet door CORS blokkeren. De upstreamverbinding gebruikt expliciet HTTP/1.1, zoals de huidige EnergyZero/Envoy-endpoint vereist.
 
 Stoppen:
 
