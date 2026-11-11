@@ -10,6 +10,20 @@ const DEFAULTS = {
   heatLoss: 50,
   gasSurcharge: 0,
   electricitySurcharge: 0,
+  roomName: "Woonkamer",
+  roomArea: 60,
+  locationName: "Amsterdam",
+  latitude: 52.3676,
+  longitude: 4.9041,
+  heatPumpEnabled: true,
+  heatPumpName: "Airco",
+  heatPumpModel: "Mitsubishi SCM40ZS-W",
+  heatPumpCapacity: 4.5,
+  copCorrection: 100,
+  boilerEnabled: true,
+  boilerName: "Cv-ketel",
+  boilerModel: "Intergas 28/24A",
+  gasEnergyContent: 9.77,
 };
 
 const els = Object.fromEntries(
@@ -24,11 +38,21 @@ const els = Object.fromEntries(
     , "planningRange", "nextSwitchText", "nextSwitchReason", "nextSwitchIcon",
     "timelineAxis", "strategyTimeline", "temperatureLine", "plannerNote", "switchList",
     "assumptionElectricity", "assumptionGas", "assumptionOutside", "assumptionInsideTarget",
-    "assumptionDuration", "assumptionEfficiency", "assumptionHeatLoss", "assumptionCop"
+    "assumptionDuration", "assumptionEfficiency", "assumptionHeatLoss", "assumptionCop",
+    "roomName", "roomArea", "locationName", "latitude", "longitude", "heatPumpEnabled",
+    "heatPumpName", "heatPumpModel", "heatPumpCapacity", "copCorrection", "boilerEnabled", "boilerName",
+    "boilerModel", "gasEnergyContent", "weatherLocation", "metricHeatPumpLabel", "metricBoilerLabel",
+    "planRoomEyebrow", "areaBadge", "heatPumpLabel", "heatPumpModelDisplay", "boilerLabel",
+    "boilerModelDisplay", "durationSummaryLabel", "legendHeatPump", "legendBoiler",
+    "formulaHeatPumpLabel", "formulaBoilerLabel", "gasFormula", "assumptionArea", "assumptionRoom",
+    "assumptionHeatPump", "assumptionHeatPumpModel", "assumptionBoiler", "assumptionBoilerModel",
+    "assumptionGasEnergy", "assumptionLocation", "heatPumpProfileCard", "boilerProfileCard",
+    "heatPumpMetricCard", "boilerMetricCard", "breakEvenMetricCard", "heatPumpCostRow",
+    "boilerCostRow", "heatPumpFormula", "boilerFormula", "legendHybridItem"
   ].map((id) => [id, document.getElementById(id)])
 );
 
-const fields = {
+const numericFields = {
   electricity: els.electricityPrice,
   gas: els.gasPrice,
   outside: els.outsideTemp,
@@ -39,18 +63,43 @@ const fields = {
   heatLoss: els.heatLoss,
   gasSurcharge: els.gasSurcharge,
   electricitySurcharge: els.electricitySurcharge,
+  roomArea: els.roomArea,
+  latitude: els.latitude,
+  longitude: els.longitude,
+  heatPumpCapacity: els.heatPumpCapacity,
+  copCorrection: els.copCorrection,
+  gasEnergyContent: els.gasEnergyContent,
 };
+
+const textFields = {
+  roomName: els.roomName,
+  locationName: els.locationName,
+  heatPumpName: els.heatPumpName,
+  heatPumpModel: els.heatPumpModel,
+  boilerName: els.boilerName,
+  boilerModel: els.boilerModel,
+};
+
+const toggleFields = {
+  heatPumpEnabled: els.heatPumpEnabled,
+  boilerEnabled: els.boilerEnabled,
+};
+
+const fields = { ...numericFields, ...textFields, ...toggleFields };
 
 const nf = new Intl.NumberFormat("nl-NL", { minimumFractionDigits: 2, maximumFractionDigits: 3 });
 const money = (value, digits = 3) => `€ ${new Intl.NumberFormat("nl-NL", { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value)}`;
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (character) => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", "\"": "&quot;",
+})[character]);
 
 function loadState() {
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch (_) {}
   const params = new URLSearchParams(location.search);
   const state = { ...DEFAULTS, ...saved };
-  for (const key of Object.keys(fields)) {
+  for (const key of Object.keys(numericFields)) {
     if (params.has(key) && Number.isFinite(Number(params.get(key)))) state[key] = Number(params.get(key));
   }
   return state;
@@ -61,20 +110,26 @@ let liveParts = new Set();
 let forecast = { electricity: [], gas: [], weather: [] };
 
 function populate() {
-  for (const [key, input] of Object.entries(fields)) input.value = state[key];
+  for (const [key, input] of Object.entries(numericFields)) input.value = state[key];
+  for (const [key, input] of Object.entries(textFields)) input.value = state[key];
+  for (const [key, input] of Object.entries(toggleFields)) input.checked = Boolean(state[key]);
 }
 
 function readForm() {
-  for (const [key, input] of Object.entries(fields)) {
+  for (const [key, input] of Object.entries(numericFields)) {
     const value = Number(input.value);
     if (Number.isFinite(value)) state[key] = value;
   }
+  for (const [key, input] of Object.entries(textFields)) {
+    state[key] = input.value.trim() || DEFAULTS[key];
+  }
+  for (const [key, input] of Object.entries(toggleFields)) state[key] = input.checked;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-function estimateCop(outside, target) {
-  // Curve anchored to the SCM40ZS-W nominal 4.5 kW heat / 0.83 kW input label,
-  // then reduced for colder air, defrost and a higher supply-air target.
+function estimateCop(outside, target, correction = 100) {
+  // Practical air-to-air heat-pump curve, reduced for colder air, defrost and
+  // a higher room target. The saved profile can tune it for another model.
   const points = [[-10, 2.15], [-7, 2.45], [-2, 3.05], [2, 3.65], [7, 4.55], [10, 5.05], [15, 5.35]];
   let cop = points[0][1];
   for (let i = 1; i < points.length; i++) {
@@ -88,38 +143,76 @@ function estimateCop(outside, target) {
   }
   if (outside > -1 && outside < 5) cop *= 0.92; // practical defrost allowance
   cop -= Math.max(0, target - 20) * 0.08;
+  cop *= correction / 100;
   return clamp(cop, 1.8, 5.4);
 }
 
 function computeSnapshot(input) {
-  const cop = estimateCop(input.outside, input.target);
+  const cop = estimateCop(input.outside, input.target, input.copCorrection);
   const efficiency = input.boilerEfficiency / 100;
-  const gasUnitCost = input.gas / (9.77 * efficiency);
+  const gasUnitCost = input.gas / (input.gasEnergyContent * efficiency);
   const hpUnitCost = input.electricity / cop;
-  const steadyDemand = 60 * input.heatLoss * Math.max(0, input.target - input.outside) / 20 / 1000;
+  const steadyDemand = input.roomArea * input.heatLoss * Math.max(0, input.target - input.outside) / 20 / 1000;
   const warmupDemand = Math.max(0, input.target - input.inside) * 0.55;
   const heatDemand = clamp(steadyDemand + warmupDemand, 0.3, 7.5);
-  const capacityLimited = heatDemand > 4.5;
-  const hpHourly = Math.min(4.5, heatDemand) * hpUnitCost + Math.max(0, heatDemand - 4.5) * gasUnitCost;
+  const capacityLimited = input.heatPumpEnabled && heatDemand > input.heatPumpCapacity;
+  const hybridHourly = Math.min(input.heatPumpCapacity, heatDemand) * hpUnitCost
+    + Math.max(0, heatDemand - input.heatPumpCapacity) * gasUnitCost;
+  const hpHourly = input.boilerEnabled ? hybridHourly : heatDemand * hpUnitCost;
   const gasHourly = heatDemand * gasUnitCost;
+  const comparisonAvailable = input.heatPumpEnabled && input.boilerEnabled;
+  let strategy = "hp";
+  if (!input.heatPumpEnabled) strategy = "gas";
+  else if (!input.boilerEnabled) strategy = "hp";
+  else if (hpHourly < gasHourly) strategy = capacityLimited ? "hybrid" : "hp";
+  else strategy = "gas";
   return {
     cop, gasUnitCost, hpUnitCost, heatDemand, capacityLimited, hpHourly, gasHourly,
-    strategy: hpHourly < gasHourly ? (capacityLimited ? "hybrid" : "hp") : "gas",
+    comparisonAvailable, strategy,
   };
 }
 
 function calculate() {
   readForm();
   const snapshot = computeSnapshot(state);
-  const { cop, gasUnitCost, hpUnitCost, heatDemand, capacityLimited, hpHourly, gasHourly } = snapshot;
+  const { cop, gasUnitCost, hpUnitCost, heatDemand, capacityLimited, hpHourly, gasHourly, comparisonAvailable, strategy } = snapshot;
   const efficiency = state.boilerEfficiency / 100;
-  const gasHeatKwh = 9.77 * efficiency;
   const breakEvenPrice = gasUnitCost * cop;
   const breakEvenCop = state.electricity / gasUnitCost;
-  const hpWins = hpHourly < gasHourly;
+  const hpWins = strategy === "hp" || strategy === "hybrid";
   const savingHourly = Math.abs(gasHourly - hpHourly);
   const savingPercent = Math.round(savingHourly / Math.max(hpHourly, gasHourly) * 100);
   const periodSaving = savingHourly * state.duration;
+
+  document.body.classList.toggle("single-source", !comparisonAvailable);
+  els.heatPumpMetricCard.hidden = !state.heatPumpEnabled;
+  els.boilerMetricCard.hidden = !state.boilerEnabled;
+  els.breakEvenMetricCard.hidden = !comparisonAvailable;
+  els.heatPumpCostRow.hidden = !state.heatPumpEnabled;
+  els.boilerCostRow.hidden = !state.boilerEnabled;
+  els.heatPumpFormula.hidden = !state.heatPumpEnabled;
+  els.boilerFormula.hidden = !state.boilerEnabled;
+  els.legendHeatPump.parentElement.hidden = !state.heatPumpEnabled;
+  els.legendBoiler.parentElement.hidden = !state.boilerEnabled;
+  els.legendHybridItem.hidden = !comparisonAvailable;
+  els.heatPumpProfileCard.classList.toggle("source-off", !state.heatPumpEnabled);
+  els.boilerProfileCard.classList.toggle("source-off", !state.boilerEnabled);
+
+  els.weatherLocation.textContent = `Buiten in ${state.locationName}`;
+  els.metricHeatPumpLabel.textContent = state.heatPumpName;
+  els.metricBoilerLabel.textContent = state.boilerName;
+  els.planRoomEyebrow.textContent = `Plan voor ${state.roomName}`;
+  els.areaBadge.textContent = `${nf.format(state.roomArea)} m²`;
+  els.heatPumpLabel.textContent = state.heatPumpName;
+  els.heatPumpModelDisplay.textContent = state.heatPumpModel;
+  els.boilerLabel.textContent = state.boilerName;
+  els.boilerModelDisplay.textContent = state.boilerModel;
+  els.durationSummaryLabel.textContent = `Verbruik voor ${nf.format(state.duration)} uur`;
+  els.legendHeatPump.textContent = state.heatPumpName;
+  els.legendBoiler.textContent = state.boilerName;
+  els.formulaHeatPumpLabel.textContent = state.heatPumpName;
+  els.formulaBoilerLabel.textContent = state.boilerName;
+  els.gasFormula.textContent = `gasprijs ÷ (${nf.format(state.gasEnergyContent)} × rendement)`;
 
   els.outsideDisplay.textContent = state.outside.toLocaleString("nl-NL", { maximumFractionDigits: 1 });
   els.heatPumpCost.textContent = money(hpUnitCost);
@@ -131,8 +224,12 @@ function calculate() {
   els.heatPumpHourly.textContent = `${money(hpHourly, 2)}/uur`;
   els.gasHourly.textContent = `${money(gasHourly, 2)}/uur`;
   els.heatDemand.textContent = `${nf.format(heatDemand)} kW`;
-  els.fourHourSaving.textContent = `${money(periodSaving, 2)} voordeel`;
-  els.capacityStatus.textContent = capacityLimited ? "Combineren" : "Voldoende";
+  els.fourHourSaving.textContent = comparisonAvailable
+    ? `${money(periodSaving, 2)} voordeel`
+    : `${money((state.heatPumpEnabled ? hpHourly : gasHourly) * state.duration, 2)} totaal`;
+  els.capacityStatus.textContent = capacityLimited
+    ? (state.boilerEnabled ? "Combineren" : "Vermogen tekort")
+    : "Voldoende";
   els.assumptionElectricity.textContent = `${money(state.electricity)}/kWh`;
   els.assumptionGas.textContent = `${money(state.gas)}/m³`;
   els.assumptionOutside.textContent = `${state.outside.toLocaleString("nl-NL", { maximumFractionDigits: 1 })} °C`;
@@ -141,34 +238,62 @@ function calculate() {
   els.assumptionEfficiency.textContent = `${state.boilerEfficiency.toLocaleString("nl-NL", { maximumFractionDigits: 0 })}%`;
   els.assumptionHeatLoss.textContent = `${state.heatLoss.toLocaleString("nl-NL", { maximumFractionDigits: 0 })} W/m²K`;
   els.assumptionCop.textContent = nf.format(cop);
+  els.assumptionArea.textContent = `${nf.format(state.roomArea)} m²`;
+  els.assumptionRoom.textContent = state.roomName;
+  els.assumptionHeatPump.textContent = state.heatPumpEnabled ? `${nf.format(state.heatPumpCapacity)} kW · actief` : "Uitgeschakeld";
+  els.assumptionHeatPumpModel.textContent = state.heatPumpModel;
+  els.assumptionBoiler.textContent = state.boilerEnabled ? `${state.boilerEfficiency.toFixed(0)}% · actief` : "Uitgeschakeld";
+  els.assumptionBoilerModel.textContent = state.boilerModel;
+  els.assumptionGasEnergy.textContent = `${nf.format(state.gasEnergyContent)} kWh/m³`;
+  els.assumptionLocation.textContent = `${state.locationName} · ${state.latitude.toFixed(4)}, ${state.longitude.toFixed(4)}`;
 
   const maxHourly = Math.max(hpHourly, gasHourly) * 1.08;
   els.heatPumpBar.style.width = `${(hpHourly / maxHourly) * 100}%`;
   els.gasBar.style.width = `${(gasHourly / maxHourly) * 100}%`;
 
-  if (capacityLimited && hpWins) {
-    els.recommendationTitle.textContent = "Hybride";
-    els.recommendationSubtitle.textContent = "Laat de airco de basis doen en gebruik gas alleen voor het tekort.";
-    els.recommendationIcon.textContent = "◐";
-    els.reasonText.textContent = `De vraag is circa ${nf.format(heatDemand)} kW; de airco is berekend op maximaal 4,5 kW warmte.`;
-  } else if (hpWins) {
-    els.recommendationTitle.textContent = "Airco";
-    els.recommendationSubtitle.textContent = "De Mitsubishi warmtepomp levert nu de goedkoopste warmte.";
+  if (!comparisonAvailable && state.heatPumpEnabled) {
+    els.recommendationTitle.textContent = state.heatPumpName;
+    els.recommendationSubtitle.textContent = capacityLimited
+      ? `Dit is je enige actieve bron, maar het geschatte benodigde vermogen ligt boven ${nf.format(state.heatPumpCapacity)} kW.`
+      : `Kostenprofiel van je enige actieve warmtebron.`;
     els.recommendationIcon.textContent = "❄";
-    els.reasonText.textContent = `De geschatte COP is ${nf.format(cop)}; de airco blijft voordelig zolang stroom onder ${money(breakEvenPrice)} per kWh blijft.`;
+    els.reasonText.textContent = `Geschatte warmtekosten: ${money(hpUnitCost)} per kWh warmte bij COP ${nf.format(cop)}.`;
+  } else if (!comparisonAvailable && state.boilerEnabled) {
+    els.recommendationTitle.textContent = state.boilerName;
+    els.recommendationSubtitle.textContent = "Kostenprofiel van je enige actieve warmtebron.";
+    els.recommendationIcon.textContent = "♨";
+    els.reasonText.textContent = `Geschatte warmtekosten: ${money(gasUnitCost)} per kWh warmte bij ${state.boilerEfficiency.toFixed(0)}% rendement.`;
+  } else if (capacityLimited && hpWins) {
+    els.recommendationTitle.textContent = "Hybride";
+    els.recommendationSubtitle.textContent = `Laat ${state.heatPumpName} de basis doen en gebruik ${state.boilerName} alleen voor het tekort.`;
+    els.recommendationIcon.textContent = "◐";
+    els.reasonText.textContent = `De vraag is circa ${nf.format(heatDemand)} kW; ${state.heatPumpName} is ingesteld op maximaal ${nf.format(state.heatPumpCapacity)} kW warmte.`;
+  } else if (hpWins) {
+    els.recommendationTitle.textContent = state.heatPumpName;
+    els.recommendationSubtitle.textContent = `${state.heatPumpModel} levert nu de goedkoopste warmte.`;
+    els.recommendationIcon.textContent = "❄";
+    els.reasonText.textContent = `De geschatte COP is ${nf.format(cop)}; ${state.heatPumpName} blijft voordelig zolang stroom onder ${money(breakEvenPrice)} per kWh blijft.`;
   } else {
-    els.recommendationTitle.textContent = "Cv-ketel";
-    els.recommendationSubtitle.textContent = "Gas levert in deze situatie de goedkoopste warmte.";
+    els.recommendationTitle.textContent = state.boilerName;
+    els.recommendationSubtitle.textContent = `${state.boilerModel} levert in deze situatie de goedkoopste warmte.`;
     els.recommendationIcon.textContent = "♨";
     els.reasonText.textContent = `Voor de huidige stroomprijs is een COP van ${nf.format(breakEvenCop)} nodig; de schatting is ${nf.format(cop)}.`;
   }
 
-  els.savingValue.textContent = `${money(savingHourly, 2)} · ${savingPercent}%`;
-  els.savingLabel.textContent = hpWins ? "goedkoper per uur met airco" : "goedkoper per uur met gas";
-  els.explanationTitle.textContent = hpWins ? "De warmtepomp haalt meer warmte uit iedere euro." : "De stroomprijs ligt boven het huidige omslagpunt.";
-  els.explanationText.textContent = hpWins
-    ? `Bij ${state.outside.toLocaleString("nl-NL")} °C buiten rekenen we met een COP van ${nf.format(cop)}. Eén kWh stroom levert dan ongeveer ${nf.format(cop)} kWh warmte. Met jouw prijzen kost die warmte ${money(hpUnitCost)} per kWh, tegenover ${money(gasUnitCost)} via de cv-ketel.`
-    : `Met de huidige prijzen kost warmte via de airco ${money(hpUnitCost)} per kWh en via de cv-ketel ${money(gasUnitCost)}. Een lagere stroomprijs, hogere buitentemperatuur of lagere gewenste kamertemperatuur kan de keuze weer omdraaien.`;
+  els.savingValue.textContent = comparisonAvailable
+    ? `${money(savingHourly, 2)} · ${savingPercent}%`
+    : `${money(state.heatPumpEnabled ? hpHourly : gasHourly, 2)}/uur`;
+  els.savingLabel.textContent = comparisonAvailable
+    ? (hpWins ? `goedkoper per uur met ${state.heatPumpName}` : `goedkoper per uur met ${state.boilerName}`)
+    : "geschatte verwarmingskosten";
+  els.explanationTitle.textContent = !comparisonAvailable
+    ? `Kostenprofiel van ${state.heatPumpEnabled ? state.heatPumpName : state.boilerName}.`
+    : hpWins ? "De warmtepomp haalt meer warmte uit iedere euro." : "De stroomprijs ligt boven het huidige omslagpunt.";
+  els.explanationText.textContent = !comparisonAvailable
+    ? `De berekening gebruikt ${nf.format(heatDemand)} kW geschatte warmtevraag voor ${state.roomName} (${nf.format(state.roomArea)} m²). Activeer een tweede warmtebron in je profiel om kosten en omslagpunten te vergelijken.`
+    : hpWins
+    ? `Bij ${state.outside.toLocaleString("nl-NL")} °C buiten rekenen we met een COP van ${nf.format(cop)}. Eén kWh stroom levert dan ongeveer ${nf.format(cop)} kWh warmte. Met jouw prijzen kost die warmte ${money(hpUnitCost)} per kWh via ${state.heatPumpName}, tegenover ${money(gasUnitCost)} via ${state.boilerName}.`
+    : `Met de huidige prijzen kost warmte via ${state.heatPumpName} ${money(hpUnitCost)} per kWh en via ${state.boilerName} ${money(gasUnitCost)}. Een lagere stroomprijs, hogere buitentemperatuur of lagere voorkeurstemperatuur kan de keuze weer omdraaien.`;
   renderPlanner();
 }
 
@@ -283,17 +408,17 @@ function renderPlanner() {
   ).join("");
   els.strategyTimeline.innerHTML = slots.map((slot, index) => {
     const changed = index > 0 && slot.strategy !== slots[index - 1].strategy && slot.strategy !== "unavailable";
-    const label = slot.strategy === "hp" ? "Airco" : slot.strategy === "gas" ? "Gas" : slot.strategy === "hybrid" ? "Hybride" : "Geen data";
+    const label = slot.strategy === "hp" ? state.heatPumpName : slot.strategy === "gas" ? state.boilerName : slot.strategy === "hybrid" ? "Hybride" : "Geen data";
     const title = slot.strategy === "unavailable"
       ? `${formatPlanTime(slot.time, true)} — nog geen prijs beschikbaar`
       : `${formatPlanTime(slot.time, true)} — ${label} · stroom ${money(slot.electricity)} · gas ${money(slot.gas)} · ${Number(slot.outside).toLocaleString("nl-NL", { maximumFractionDigits: 1 })} °C`;
-    return `<div class="timeline-slot ${slot.strategy}${changed ? " switch" : ""}" title="${title}"><small>${index % 3 === 0 ? label : ""}</small></div>`;
+    return `<div class="timeline-slot ${slot.strategy}${changed ? " switch" : ""}" title="${escapeHtml(title)}"><small>${index % 3 === 0 ? escapeHtml(label) : ""}</small></div>`;
   }).join("");
   els.temperatureLine.innerHTML = slots.map((slot, index) =>
     `<span>${index % 3 === 0 && Number.isFinite(slot.outside) ? `${Number(slot.outside).toLocaleString("nl-NL", { maximumFractionDigits: 0 })}°` : ""}</span>`
   ).join("");
 
-  const labelFor = (value) => value === "hp" ? "airco" : value === "gas" ? "cv-ketel" : "hybride verwarmen";
+  const labelFor = (value) => value === "hp" ? state.heatPumpName : value === "gas" ? state.boilerName : "hybride verwarmen";
   if (switches.length) {
     const next = switches[0];
     els.nextSwitchIcon.textContent = "↻";
@@ -309,7 +434,7 @@ function renderPlanner() {
   }
 
   els.switchList.innerHTML = switches.length
-    ? switches.slice(0, 6).map((event) => `<article class="switch-event"><time>${formatPlanTime(event.time, true)}</time><div><strong>Naar ${labelFor(event.strategy)}</strong><small>${money(event.electricity)}/kWh · ${Number(event.outside).toLocaleString("nl-NL", { maximumFractionDigits: 1 })} °C</small></div></article>`).join("")
+    ? switches.slice(0, 6).map((event) => `<article class="switch-event"><time>${formatPlanTime(event.time, true)}</time><div><strong>Naar ${escapeHtml(labelFor(event.strategy))}</strong><small>${money(event.electricity)}/kWh · ${Number(event.outside).toLocaleString("nl-NL", { maximumFractionDigits: 1 })} °C</small></div></article>`).join("")
     : `<div class="switch-empty">Geen schakelmomenten in de beschikbare periode.</div>`;
 }
 
@@ -317,7 +442,7 @@ async function fetchLiveData() {
   els.refreshButton.classList.add("loading");
   liveParts = new Set();
   const jobs = [
-    fetch("https://api.open-meteo.com/v1/forecast?latitude=52.3676&longitude=4.9041&current=temperature_2m&hourly=temperature_2m&forecast_days=3&timezone=Europe%2FAmsterdam")
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(state.latitude)}&longitude=${encodeURIComponent(state.longitude)}&current=temperature_2m&hourly=temperature_2m&forecast_days=3&timezone=auto`)
       .then((r) => { if (!r.ok) throw new Error("weer"); return r.json(); })
       .then((data) => {
         const temperature = Number(data?.current?.temperature_2m);
@@ -373,6 +498,18 @@ function showToast(message) {
 
 document.getElementById("strategyForm").addEventListener("input", calculate);
 document.querySelector(".advanced-grid").addEventListener("input", calculate);
+document.getElementById("profileForm").addEventListener("input", (event) => {
+  if ((event.target === els.heatPumpEnabled || event.target === els.boilerEnabled)
+      && !els.heatPumpEnabled.checked && !els.boilerEnabled.checked) {
+    event.target.checked = true;
+    showToast("Laat minimaal één warmtebron actief");
+    return;
+  }
+  calculate();
+});
+document.getElementById("profileForm").addEventListener("change", (event) => {
+  if ([els.latitude, els.longitude].includes(event.target)) fetchLiveData();
+});
 els.refreshButton.addEventListener("click", fetchLiveData);
 els.resetButton.addEventListener("click", () => {
   state = { ...DEFAULTS };

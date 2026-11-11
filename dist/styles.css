@@ -29,6 +29,7 @@ body {
 }
 button, input { font: inherit; }
 button { color: inherit; }
+[hidden] { display: none !important; }
 .page-shell { width: min(1240px, calc(100% - 36px)); margin: 0 auto; }
 
 .topbar {
@@ -123,6 +124,36 @@ details { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 18px
 summary { cursor: pointer; color: var(--muted); font-size: 13px; }
 .advanced-grid { margin-top: 18px; }
 
+.profile-panel { margin-top: 16px; }
+.profile-heading { align-items: center; }
+.profile-intro { max-width: 720px; margin: 10px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.local-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid rgba(121,223,155,.24); border-radius: 999px; color: var(--green); background: rgba(121,223,155,.06); font-size: 12px; white-space: nowrap; }
+.local-badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(121,223,155,.1); }
+.profile-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 24px; }
+.profile-card { min-width: 0; padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface-2); transition: opacity .2s, border-color .2s; }
+.profile-card.source-off { opacity: .58; border-style: dashed; }
+.profile-card-heading { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; }
+.profile-card-heading > div:nth-child(2) { display: grid; gap: 2px; min-width: 0; }
+.profile-card-heading > div:nth-child(2) span { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+.profile-card-heading > div:nth-child(2) strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.profile-icon { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; background: rgba(203,255,92,.1); color: var(--lime); font-size: 20px; }
+.profile-icon.blue { color: var(--blue); background: rgba(96,181,255,.1); }
+.profile-icon.orange { color: var(--orange); background: rgba(255,157,82,.1); }
+.profile-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; margin-top: 18px; }
+.profile-fields .wide-field { grid-column: 1 / -1; }
+.source-toggle { position: relative; display: flex; align-items: center; gap: 7px; cursor: pointer; }
+.source-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.source-toggle > span { width: 34px; height: 20px; padding: 2px; border: 1px solid var(--line); border-radius: 999px; background: #121612; transition: .2s; }
+.source-toggle > span::after { content: ""; display: block; width: 14px; height: 14px; border-radius: 50%; background: #707770; transition: transform .2s, background .2s; }
+.source-toggle input:checked + span { border-color: rgba(203,255,92,.45); background: rgba(203,255,92,.12); }
+.source-toggle input:checked + span::after { transform: translateX(14px); background: var(--lime); }
+.source-toggle input:focus-visible + span { outline: 2px solid var(--lime); outline-offset: 3px; }
+.source-toggle em { color: var(--muted); font-size: 10px; font-style: normal; }
+.single-source .metric-grid { grid-template-columns: minmax(0, 1fr); }
+.single-source .metric-card { max-width: none; }
+.single-source .cost-comparison { gap: 0; }
+.single-source .formula-row { grid-template-columns: 1fr; }
+
 .planner-panel { margin-top: 16px; overflow: hidden; }
 .planner-heading { align-items: center; }
 .planning-range { color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 7px 11px; font-size: 13px; white-space: nowrap; }
@@ -202,6 +233,7 @@ footer p { margin: 0; }
   .metric-grid { grid-template-columns: 1fr 1fr; }
   .metric-card:last-child { grid-column: 1 / -1; }
   .switch-list { grid-template-columns: 1fr 1fr; }
+  .profile-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
   .page-shell { width: min(100% - 20px, 1240px); }
@@ -218,6 +250,9 @@ footer p { margin: 0; }
   .cost-row > strong { grid-column: 2; grid-row: 1; }
   .demand-summary { grid-template-columns: 1fr; }
   #strategyForm, .advanced-grid { grid-template-columns: 1fr; }
+  .profile-heading { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .profile-fields { grid-template-columns: 1fr; }
+  .profile-fields .wide-field { grid-column: auto; }
   .explanation-panel { grid-template-columns: 1fr; }
   .formula-row { grid-template-columns: 1fr; }
   .switch-list { grid-template-columns: 1fr; }

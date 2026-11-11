@@ -2,11 +2,13 @@
 
 Een statische, eenvoudige webtool die de verwarmingskosten vergelijkt van:
 
-- Mitsubishi Heavy Industries SCM40ZS-W / SRK35ZS-W Airco/warmtepomp;
-- Intergas 28/24A cv-ketel;
-- de woonkamer van circa 60 m².
+- een configureerbare airco/warmtepomp;
+- een configureerbare cv-ketel;
+- de ruimte die je zelf opgeeft.
 
-De pagina haalt de `all_in_with_vat`-prijsreeks op via de publieke EnergyZero API en de buitentemperatuur plus verwachting via Open-Meteo. Correcties, rendement en warmteverlies zijn instelbaar. Alle instellingen blijven alleen in de lokale browseropslag; er wordt geen Home Assistant-token gebruikt of opgeslagen.
+De pagina haalt de `all_in_with_vat`-prijsreeks op via de publieke EnergyZero API en de buitentemperatuur plus verwachting via Open-Meteo. Ruimte, locatie, voorkeurstemperatuur, brongegevens, vermogen, correcties, rendement en warmteverlies zijn instelbaar. Alle instellingen blijven alleen in de lokale browseropslag; er wordt geen Home Assistant-token gebruikt of opgeslagen.
+
+Je kunt één of twee warmtebronnen actief maken. Met twee bronnen toont de tool de kostenvergelijking en mogelijke schakelmomenten. Met één bron verdwijnen de niet-relevante vergelijking en het omslagpunt, zodat alleen het kostenprofiel, de capaciteit en planning van die bron overblijven. De tool voorkomt dat beide bronnen tegelijk worden uitgezet.
 
 De 48-uursplanner vergelijkt per uur de kosten van airco, gas en — bij een hogere warmtevraag — hybride verwarmen. Verwachte schakelmomenten worden boven de tijdlijn en in een compacte lijst getoond. Wanneer toekomstige prijzen nog niet gepubliceerd zijn, wordt de planning beperkt tot de beschikbare periode.
 
@@ -35,7 +37,7 @@ De openbare Pages-versie staat op `https://roelsroels.github.io/slim-verwarmen/`
 ## Rekenmethode
 
 - Warmtepomp: `elektriciteitsprijs / geschatte COP`
-- Cv-ketel: `gasprijs / (9,77 kWh/m³ × ketelrendement)`
-- Warmtevraag: 60 m² × warmteverlies, geschaald met het actuele temperatuurverschil, plus een tijdelijke opwarmcomponent.
+- Cv-ketel: `gasprijs / (energie-inhoud gas × ketelrendement)`
+- Warmtevraag: ingesteld oppervlak × warmteverlies, geschaald met het actuele temperatuurverschil, plus een tijdelijke opwarmcomponent.
 
 De uitkomst is indicatief en geen energielabel- of installateursberekening.

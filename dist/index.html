@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#101310" />
     <meta
       name="description"
-      content="Vergelijk de actuele verwarmingskosten van de Mitsubishi warmtepomp en Intergas cv-ketel."
+      content="Vergelijk actuele verwarmingskosten met je eigen ruimte, warmtepomp en cv-ketel."
     />
     <title>Slim verwarmen</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -59,7 +59,7 @@
 
           <aside class="weather-card">
             <div class="weather-topline">
-              <span class="eyebrow">Buiten in Amsterdam</span>
+              <span class="eyebrow" id="weatherLocation">Buiten in Amsterdam</span>
               <span id="weatherTime">nu</span>
             </div>
             <div class="weather-main">
@@ -73,19 +73,19 @@
         </section>
 
         <section class="metric-grid" aria-label="Kostenvergelijking">
-          <article class="metric-card accent-blue">
-            <div class="metric-title"><span class="mini-icon">✦</span> Warmtepomp</div>
+          <article class="metric-card accent-blue" id="heatPumpMetricCard">
+            <div class="metric-title"><span class="mini-icon">✦</span> <span id="metricHeatPumpLabel">Warmtepomp</span></div>
             <strong id="heatPumpCost">€ –</strong>
             <span>per kWh warmte</span>
             <div class="metric-foot"><span>COP</span><b id="copValue">–</b></div>
           </article>
-          <article class="metric-card accent-orange">
-            <div class="metric-title"><span class="mini-icon">●</span> Cv-ketel</div>
+          <article class="metric-card accent-orange" id="boilerMetricCard">
+            <div class="metric-title"><span class="mini-icon">●</span> <span id="metricBoilerLabel">Cv-ketel</span></div>
             <strong id="gasCost">€ –</strong>
             <span>per kWh warmte</span>
             <div class="metric-foot"><span>Rendement</span><b id="boilerEfficiencyValue">–</b></div>
           </article>
-          <article class="metric-card accent-green">
+          <article class="metric-card accent-green" id="breakEvenMetricCard">
             <div class="metric-title"><span class="mini-icon">↗</span> Omslagpunt</div>
             <strong id="breakEvenPrice">€ –</strong>
             <span>stroomprijs per kWh</span>
@@ -97,26 +97,26 @@
           <article class="panel strategy-panel">
             <div class="panel-heading">
               <div>
-                <span class="eyebrow">Plan voor de woonkamer</span>
+                <span class="eyebrow" id="planRoomEyebrow">Plan voor de woonkamer</span>
                 <h2>Wat kost comfortabel houden?</h2>
               </div>
-              <span class="area-badge">60 m²</span>
+              <span class="area-badge" id="areaBadge">60 m²</span>
             </div>
             <div class="cost-comparison">
-              <div class="cost-row">
-                <div class="cost-label"><span class="legend-dot blue"></span><b>Airco</b><small>Mitsubishi SCM40ZS-W</small></div>
+              <div class="cost-row" id="heatPumpCostRow">
+                <div class="cost-label"><span class="legend-dot blue"></span><b id="heatPumpLabel">Airco</b><small id="heatPumpModelDisplay">Mitsubishi SCM40ZS-W</small></div>
                 <div class="cost-bar-track"><div class="cost-bar blue" id="heatPumpBar"></div></div>
                 <strong id="heatPumpHourly">€ –/uur</strong>
               </div>
-              <div class="cost-row">
-                <div class="cost-label"><span class="legend-dot orange"></span><b>Gas</b><small>Intergas 28/24A</small></div>
+              <div class="cost-row" id="boilerCostRow">
+                <div class="cost-label"><span class="legend-dot orange"></span><b id="boilerLabel">Gas</b><small id="boilerModelDisplay">Intergas 28/24A</small></div>
                 <div class="cost-bar-track"><div class="cost-bar orange" id="gasBar"></div></div>
                 <strong id="gasHourly">€ –/uur</strong>
               </div>
             </div>
             <div class="demand-summary">
               <div><span>Geschatte warmtevraag</span><strong id="heatDemand">– kW</strong></div>
-              <div><span>Verbruik voor 4 uur</span><strong id="fourHourSaving">€ – voordeel</strong></div>
+              <div><span id="durationSummaryLabel">Verbruik voor 4 uur</span><strong id="fourHourSaving">€ – voordeel</strong></div>
               <div><span>Capaciteitscheck</span><strong id="capacityStatus">Voldoende</strong></div>
             </div>
           </article>
@@ -147,7 +147,7 @@
                 <div class="input-wrap"><input id="insideTemp" name="inside" type="number" min="5" max="30" step="0.1" inputmode="decimal" /><em>°C</em></div>
               </label>
               <label>
-                <span>Gewenste temperatuur</span>
+                <span>Voorkeurstemperatuur</span>
                 <div class="input-wrap"><input id="targetTemp" name="target" type="number" min="10" max="30" step="0.5" inputmode="decimal" /><em>°C</em></div>
               </label>
               <label>
@@ -165,6 +165,68 @@
               </div>
             </details>
           </article>
+        </section>
+
+        <section class="panel profile-panel" aria-labelledby="profileTitle">
+          <div class="panel-heading profile-heading">
+            <div>
+              <span class="eyebrow">Opgeslagen woningprofiel</span>
+              <h2 id="profileTitle">Ruimte en verwarmingsbronnen</h2>
+            </div>
+            <span class="local-badge"><i></i> Bewaard in deze browser</span>
+          </div>
+          <p class="profile-intro">Deze gegevens sturen het advies, de planning en de kostenberekening. Ze verlaten je browser niet.</p>
+
+          <div class="profile-grid" id="profileForm">
+            <article class="profile-card room-profile">
+              <div class="profile-card-heading">
+                <div class="profile-icon">⌂</div>
+                <div><span>Ruimte</span><strong>Wat wil je verwarmen?</strong></div>
+              </div>
+              <div class="profile-fields">
+                <label class="wide-field"><span>Naam van de ruimte</span><div class="input-wrap"><input id="roomName" type="text" maxlength="40" autocomplete="off" /></div></label>
+                <label><span>Oppervlak</span><div class="input-wrap"><input id="roomArea" type="number" min="5" max="500" step="1" /><em>m²</em></div></label>
+                <label><span>Weerlocatie</span><div class="input-wrap"><input id="locationName" type="text" maxlength="50" autocomplete="off" /></div></label>
+                <label><span>Breedtegraad</span><div class="input-wrap"><input id="latitude" type="number" min="-90" max="90" step="0.0001" /></div></label>
+                <label><span>Lengtegraad</span><div class="input-wrap"><input id="longitude" type="number" min="-180" max="180" step="0.0001" /></div></label>
+              </div>
+            </article>
+
+            <article class="profile-card source-profile" id="heatPumpProfileCard">
+              <div class="profile-card-heading">
+                <div class="profile-icon blue">✦</div>
+                <div><span>Elektrische bron</span><strong>Warmtepomp / airco</strong></div>
+                <label class="source-toggle" title="Warmtepomp meenemen in het advies">
+                  <input id="heatPumpEnabled" type="checkbox" />
+                  <span aria-hidden="true"></span>
+                  <em>Actief</em>
+                </label>
+              </div>
+              <div class="profile-fields">
+                <label><span>Naam</span><div class="input-wrap"><input id="heatPumpName" type="text" maxlength="32" autocomplete="off" /></div></label>
+                <label><span>Model</span><div class="input-wrap"><input id="heatPumpModel" type="text" maxlength="50" autocomplete="off" /></div></label>
+                <label><span>Max. warmtevermogen</span><div class="input-wrap"><input id="heatPumpCapacity" type="number" min="0.5" max="50" step="0.1" /><em>kW</em></div></label>
+                <label><span>COP-correctie</span><div class="input-wrap"><input id="copCorrection" type="number" min="50" max="150" step="1" /><em>%</em></div></label>
+              </div>
+            </article>
+
+            <article class="profile-card source-profile" id="boilerProfileCard">
+              <div class="profile-card-heading">
+                <div class="profile-icon orange">●</div>
+                <div><span>Gasbron</span><strong>Cv-ketel</strong></div>
+                <label class="source-toggle" title="Cv-ketel meenemen in het advies">
+                  <input id="boilerEnabled" type="checkbox" />
+                  <span aria-hidden="true"></span>
+                  <em>Actief</em>
+                </label>
+              </div>
+              <div class="profile-fields">
+                <label><span>Naam</span><div class="input-wrap"><input id="boilerName" type="text" maxlength="32" autocomplete="off" /></div></label>
+                <label><span>Model</span><div class="input-wrap"><input id="boilerModel" type="text" maxlength="50" autocomplete="off" /></div></label>
+                <label><span>Energie-inhoud gas</span><div class="input-wrap"><input id="gasEnergyContent" type="number" min="5" max="15" step="0.01" /><em>kWh/m³</em></div></label>
+              </div>
+            </article>
+          </div>
         </section>
 
         <section class="panel planner-panel">
@@ -189,9 +251,9 @@
             <div class="temperature-line" id="temperatureLine"></div>
           </div>
           <div class="planner-legend">
-            <span><i class="blue"></i> Airco</span>
-            <span><i class="orange"></i> Gas</span>
-            <span><i class="hybrid"></i> Hybride</span>
+            <span><i class="blue"></i> <b id="legendHeatPump">Airco</b></span>
+            <span><i class="orange"></i> <b id="legendBoiler">Gas</b></span>
+            <span id="legendHybridItem"><i class="hybrid"></i> Hybride</span>
             <span class="planner-note" id="plannerNote">Gebaseerd op gepubliceerde prijzen en weersverwachting</span>
           </div>
           <div class="switch-list" id="switchList"></div>
@@ -204,8 +266,8 @@
           </div>
           <p id="explanationText"></p>
           <div class="formula-row">
-            <div><span>Warmtepomp</span><code>stroomprijs ÷ COP</code></div>
-            <div><span>Cv-ketel</span><code>gasprijs ÷ (9,77 × rendement)</code></div>
+            <div id="heatPumpFormula"><span id="formulaHeatPumpLabel">Warmtepomp</span><code>stroomprijs ÷ COP</code></div>
+            <div id="boilerFormula"><span id="formulaBoilerLabel">Cv-ketel</span><code id="gasFormula">gasprijs ÷ (9,77 × rendement)</code></div>
           </div>
         </section>
       </main>
@@ -239,10 +301,12 @@
                 <tr><th scope="row">Ketelrendement</th><td id="assumptionEfficiency">—</td><td><span class="assumption-tag input">Jouw invoer</span></td></tr>
                 <tr><th scope="row">Warmteverlies</th><td id="assumptionHeatLoss">—</td><td><span class="assumption-tag input">Jouw invoer</span></td></tr>
                 <tr><th scope="row">Geschatte COP</th><td id="assumptionCop">—</td><td><span class="assumption-tag calculated">Berekend</span></td></tr>
-                <tr class="assumption-group"><th colspan="3" scope="rowgroup">Vaste modelaannames</th></tr>
-                <tr><th scope="row">Verwarmd oppervlak</th><td>60 m²</td><td>Woonkamer</td></tr>
-                <tr><th scope="row">Max. warmtepompvermogen</th><td>4,5 kW</td><td>Mitsubishi SCM40ZS-W</td></tr>
-                <tr><th scope="row">Energie-inhoud gas</th><td>9,77 kWh/m³</td><td>Rekenwaarde</td></tr>
+                <tr class="assumption-group"><th colspan="3" scope="rowgroup">Opgeslagen installatieprofiel</th></tr>
+                <tr><th scope="row">Verwarmd oppervlak</th><td id="assumptionArea">—</td><td id="assumptionRoom">—</td></tr>
+                <tr><th scope="row">Warmtepomp / airco</th><td id="assumptionHeatPump">—</td><td id="assumptionHeatPumpModel">—</td></tr>
+                <tr><th scope="row">Cv-ketel</th><td id="assumptionBoiler">—</td><td id="assumptionBoilerModel">—</td></tr>
+                <tr><th scope="row">Energie-inhoud gas</th><td id="assumptionGasEnergy">—</td><td>Profielwaarde</td></tr>
+                <tr><th scope="row">Weerlocatie</th><td id="assumptionLocation">—</td><td>Open-Meteo</td></tr>
               </tbody>
             </table>
           </div>
