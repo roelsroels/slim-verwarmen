@@ -1,6 +1,6 @@
 # Slim verwarmen
 
-Een statische, private webtool die de verwarmingskosten vergelijkt van:
+Een statische, eenvoudige webtool die de verwarmingskosten vergelijkt van:
 
 - Mitsubishi Heavy Industries SCM40ZS-W / SRK35ZS-W warmtepomp;
 - Intergas 28/24A cv-ketel;
